@@ -17,3 +17,5 @@ mapping.csv
 handoff/
 logs/
 eval/*ORIGINAL*
+GROK.md
+tasks.md
