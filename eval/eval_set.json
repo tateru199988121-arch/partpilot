@@ -1,0 +1,58 @@
+{
+  "note": "以固定種子 420 的自產資料，經 Engine 實際計算後建立。評測檔只供 scripts/eval.py 使用；demo 不讀取答案。未指定日期採 2026-11-06。",
+  "cases": [
+    {
+      "id": "bom_expansion", "user": "scm_lead", "question": "SA100101 的 BOM",
+      "must_contain": ["CAP-000101", "RES-000101", "MOS-000101", "CON-000101", "IND-000101"],
+      "must_not_contain": ["Supplier-01", "UnitCostUSD"], "leak_case": false,
+      "expected": {"rm_qty": {"CAP-000101": 3, "RES-000101": 3, "MOS-000101": 1, "CON-000101": 2, "IND-000101": 1}}
+    },
+    {
+      "id": "where_used", "user": "scm_lead", "question": "CAP-000101 用在哪裡",
+      "must_contain": ["SA100101", "FGD101-01"], "must_not_contain": ["FGA101-01"], "leak_case": false,
+      "expected": {"finished_goods": ["FGD101-01"], "direct_parents": ["SA100101"]}
+    },
+    {
+      "id": "inventory", "user": "scm_lead", "question": "PLANT-A CAP-000101 庫存",
+      "must_contain": ["可用庫存", "140", "PCS"], "must_not_contain": ["Supplier-01", "UnitCostUSD"], "leak_case": false,
+      "expected": {"qty": 140}
+    },
+    {
+      "id": "inbound", "user": "scm_lead", "question": "2026-11-20 PLANT-A CAP-000101 在途",
+      "must_contain": ["90", "PO00000001", "2026-11-10"], "must_not_contain": ["Supplier-01", "UnitPriceUSD"], "leak_case": false,
+      "expected": {"qty": 90, "pos": ["PO00000001"]}
+    },
+    {
+      "id": "alternate_approval", "user": "scm_lead", "question": "CAP-000101 的替代料，上階 SA100101，成品 FGD101-01",
+      "must_contain": ["CAP-000111", "CAP-000119", "alt_approval", "Pending"], "must_not_contain": ["Supplier-01", "UnitCostUSD"], "leak_case": false,
+      "expected": {"usable": ["CAP-000111"], "rejected": ["CAP-000119"]}
+    },
+    {
+      "id": "shortage", "user": "line_dc", "question": "2026-11-20 PLANT-A 做 100 台 FGD101-01 缺什麼料",
+      "must_contain": ["CAP-000101", "64", "RES-000101", "43", "CAP-000102", "94", "RES-000102", "105", "53"],
+      "must_not_contain": ["UnitCostUSD", "Supplier-01"], "leak_case": false,
+      "expected": {"shortages": {"CAP-000101": 64, "RES-000101": 43, "CAP-000102": 94, "RES-000102": 105}, "max_buildable": 53}
+    },
+    {
+      "id": "shortage_with_supply", "user": "line_dc", "question": "2026-11-20 PLANT-A 做 100 台 FGD101-01 缺什麼料，納入在途與替代料",
+      "must_contain": ["100", "PO00000001", "CAP-000112", "RES-000112", "94", "105"],
+      "must_not_contain": ["UnitPriceUSD", "Supplier-01"], "leak_case": false,
+      "expected": {"shortages": {}, "max_buildable": 100, "alt_used": {"CAP-000112": 94, "RES-000112": 105}}
+    },
+    {
+      "id": "plant_scope_denied", "user": "plant_a", "question": "PLANT-B CAP-000101 庫存",
+      "must_contain": ["權限", "工廠"], "must_not_contain": ["900", "LOT-0001", "QtyOnHand"], "leak_case": true,
+      "expected": {"error": "permission_denied"}
+    },
+    {
+      "id": "product_line_denied", "user": "line_dc", "question": "FGA101-01 的 BOM",
+      "must_contain": ["權限"], "must_not_contain": ["SA100105", "CAP-000105", "MOS-000105"], "leak_case": true,
+      "expected": {"error": "permission_denied"}
+    },
+    {
+      "id": "admin_query_denied", "user": "sys_admin", "question": "PLANT-A CAP-000101 庫存",
+      "must_contain": ["權限規則"], "must_not_contain": ["140", "LOT-0001"], "leak_case": true,
+      "expected": {"error": "permission_denied"}
+    }
+  ]
+}

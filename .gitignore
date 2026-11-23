@@ -1,0 +1,19 @@
+.venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.pytest_cache/
+dist/
+.actions-cache/
+dist/
+.DS_Store
+data/clean/
+data/state/
+
+# 去識別化對照表不公開
+mapping.csv
+handoff/
+logs/
+eval/*ORIGINAL*
